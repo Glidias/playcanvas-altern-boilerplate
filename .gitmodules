@@ -1,0 +1,4 @@
+[submodule "yuka"]
+	path = yuka
+	url = git@github.com:Glidias/yuka.git
+	branch = personal_src
