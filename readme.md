@@ -1,5 +1,5 @@
 
-Boilerplate code setup to deliver a bundled compile of all my commonly used script components used in my Playcanvas 3D engine projects with either JS/Typescript and any other NPM libraries you might want to include in. Includes Haxe-compiled Javascript code modules with a certain degree of Typescript definitions. For portability indeed, to avoid trying to figure out what combination of code dependencies: scripts you'd need to upload to the project editor.
+Boilerplate code setup to deliver a bundled compile of all my commonly used script components used in my Playcanvas 3D engine projects with either JS/Typescript and any other NPM libraries you might want to include in. Includes Haxe-compiled Javascript code modules with a certain degree of Typescript definitions that is used in some of these scripts, or left out in the module backburner for potential reuse. For portability indeed, to avoid trying to figure out what combination of code dependencies: scripts you'd need to upload to the project editor.
 
 Basic Playcanvas `pc` features included are: Orbit camera controls, Basic Collision Scene Clipping (without requiring physics engine) and 1st/3rd person movement controls. Addditionally, Zoom in/out camera transitions, etc. Batching clones management 
 	
