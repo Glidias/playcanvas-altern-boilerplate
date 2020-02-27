@@ -3,7 +3,7 @@ Boilerplate code setup to deliver a bundled compile of all my commonly used scri
 
 Basic Playcanvas `pc` features included are: Orbit camera controls, Basic Collision Scene Clipping (without requiring physics engine) and 1st/3rd person movement controls. Addditionally, Zoom in/out camera transitions, etc. Batching clones management 
 	
-Upcoming Playcanvas stuff to include in are: Terrain/Environment LOD integrations, Navmesh, Pathfinding agents/crowd movement, Vehicle movement clipping, Vehicle pathfinding, etc.
+Upcoming features to integrate are: Terrain/Environment LOD integrations, Navmesh, Pathfinding agents/crowd movement, Vehicle movement clipping, Vehicle pathfinding, etc.
 
 More documentation on various usages would be included in the future.
 
