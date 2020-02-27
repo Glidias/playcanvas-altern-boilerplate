@@ -7,7 +7,7 @@ Upcoming features to integrate are: Terrain/Environment LOD integrations, Navmes
 
 More documentation on various usages would be included in the future.
 
-Installation/build instructions as of below: (Or you can refer to the template repo at https://github.com/Glidias/playcanvas-typescript-babel-intellisense-template which includes other branches for minimal examples with integrating with Vue/React/etc.)
+Installation/build instructions as of below: (Or you can refer to the template repo at https://github.com/Glidias/playcanvas-typescript-babel-intellisense-template which includes other branches for minimal examples of integrating with Vue/React/etc.)
 _______________________
 
 
