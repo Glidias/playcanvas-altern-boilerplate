@@ -210,7 +210,7 @@ THe objective is to redirect certain request files/folders/etc. to access from y
 
 - Here are some examples redirects: (depending on where you place your files under `assets/files/`, you might need to change this accordingly to decide exactly what to redirect!)
 
-     1.  For only syncing main.build.js file only (on asset root)
+   1.  For only syncing main.build.js file only (on asset root)
         **Example URL**: `http://launch.playcanvas.com/api/assets/files/main.build.js?id=11217398&branchId=00465776-6b83-4f4c-af75-01c351769fa8`
 
         **Include pattern**: `http:\/\/launch\.playcanvas\.com\/api\/assets\/files\/(main\.build\.js)\?(.*)`
