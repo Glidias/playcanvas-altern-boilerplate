@@ -1,7 +1,6 @@
 import Vector3D from "../../hx/jeash/geom/Vector3D";
 import MoveResult from "../../hx/components/MoveResult";
 import SurfaceMovement from "../../hx/components/controller/SurfaceMovement";
-import CollisionEvent from "../../hx/systems/collisions/CollisionEvent";
 import CollisionResult from "../../hx/components/CollisionResult";
 import EllipsoidCollider from "../../hx/systems/collisions/EllipsoidCollider";
 import Jump from "../../hx/components/Jump";
@@ -14,9 +13,7 @@ var ThirdPersonMovement = pc.createScript('thirdPersonMovement');
 
 ThirdPersonMovement.attributes.add('entityCamera', { type: 'entity' });
 ThirdPersonMovement.attributes.add('collisionSceneEntity', { type: 'entity' });
-ThirdPersonMovement.attributes.add('terrainEntity', { type: 'entity' });
 ThirdPersonMovement.attributes.add('yawEntity', { type: 'entity' });
-//ThirdPersonMovement.attributes.add('jumpPowerMultiplier', { type: 'number', default:0.2 });
 ThirdPersonMovement.attributes.add('gravForce', { type: 'number', default:0.5 });
 
 ThirdPersonMovement.attributes.add('friction', { type: 'number', default:0 });
@@ -33,36 +30,14 @@ ThirdPersonMovement.attributes.add('jumpJetPower', { type: 'number', default:0.6
 
 ThirdPersonMovement.attributes.add('keyboardEnabled', { type: 'boolean', default:true });
 
-
-
-ThirdPersonMovement.states = {
-    idle: {
-        animation: 'idle.json'
-    },
-    walking: {
-        animation: 'walking_inPlace.json'
-    },
-    jumping: {
-        animation: 'jumping.json'
-    }
-};
-
-
 ThirdPersonMovement.prototype.initialize = function() {
     this.displacement = new Vector3D();
     this.source = new Vector3D();
-    this.resCollisionPoint = new Vector3D();
-    this.resCollisionPlane = new Vector3D();
 
    // this.force = new pc.Vec3();
     this.transformedVec = new pc.Vec3();
-    //this.transformedVec2 = new pc.Vec3();
 
     this.initializedTerrain = false;
-
-    // animation
-    this.animationblendTime = 0.2;
-    this.animationSetState('idle');
 
     this.autoForward = false;
 
@@ -87,9 +62,6 @@ ThirdPersonMovement.prototype.initialize = function() {
 
     this.defaultGroundNormal = new pc.Vec3(0,1,0);
 
-     this.app.on("spawn", function() {
-        this.collisionResult.reset();
-     },this);
 
     // Reapply the clamps if they are changed in the editor
     this.on('attr:friction', function (value, prev) {
@@ -159,20 +131,6 @@ ThirdPersonMovement.prototype.update = function(dt) {
 
      var pos = this.entity.getPosition();
 
-     if (!this.initializedTerrain) {
-         if (this.terrainEntity != null && this.terrainEntity.heightMap != null) {
-             pos.y = this.terrainEntity.heightMap.Sample(pos.x, pos.z) + (this.entity.collision.height/2) + 200;
-             this.entity.setPosition(pos.x, pos.y, pos.z);
-             this.initializedTerrain = true;
-
-         }
-     }
-
-
-    // Main script for player controls
-    //
-
-
 
     // movement direction states via key presses
     var x = 0;
@@ -213,8 +171,6 @@ ThirdPersonMovement.prototype.update = function(dt) {
     }
 
 
-
-
     // Determine relative directional states if got entityCamera containing script orbitCamera
       var dummy =ThirdPersonMovement.DUMMY_ENTITY;
     var gotMove = (x !== 0 || z !== 0);
@@ -239,60 +195,20 @@ ThirdPersonMovement.prototype.update = function(dt) {
             x = newTranslate.x;
             z = newTranslate.z;
 
-       // /*
-
-       // */
      }
 
 
-    /*
-    this.displacement.x = 0;
-    this.displacement.y = -this.gravForce;
-    this.displacement.z = 0;
-
-    this.source.x = pos.x;
-    this.source.y = pos.y;
-    this.source.z = pos.z;
-    var gotCollide = this.collider.getCollision(this.source, this.displacement, this.resCollisionPoint, this.resCollisionPlane,  this.collisionScene);
-   // if (gotCollide) {
-        // this.entity.setPosition(this.resCollisionPoint.x, this.resCollisionPoint.y, this.resCollisionPoint.z);
-        //console.log("GOT collision:"+this.resCollisionPoint + ", "+this.resCollisionPlane);
-    //}
-    */
-
-   // console.log("SETTING UP");
-    // perform destination movement
-    //
 
      this.source.x = pos.x;
     this.source.y = pos.y;
     this.source.z = pos.z;
 
-    /*
-    //if (this.collisionResult.get_gotGroundNormal()) {
-         this.displacement.x =0;
-        this.displacement.y = -this.collider.threshold*2;
-        this.displacement.z  =0;
-        var mustApplyGrav = false;
-        var gotCollide = this.collider.getCollision(this.source, this.displacement, this.resCollisionPoint, this.resCollisionPlane, this.collisionScene);
-        if (!gotCollide ||  this.resCollisionPlane.y < this.collisionResult.max_ground_normal_threshold  ) {
-         this.collisionResult.set_gotGroundNormal(false);
-           console.log("SHOULD fall!:"+this.vel);
-
-        }
-  //  else if (gotCollide && this.resCollisionPlane.y >= this.collisionResult.max_ground_normal_threshold ) {
-   //      this.collisionResult.set_gotGroundNormal(true);
-   // }
-   // }
-    */
-
       // -- To factor out to GravityScript script
 
-    var gravApplied = false;
      if (!this.collisionResult.get_gotGroundNormal() || ( this.collisionResult.get_gotGroundNormal() &&  this.collisionResult.maximum_ground_normal.dotProduct(this.vel) > 0) ) {
          this.vel.y -= this.gravForce ;
          this.collisionResult.set_gotGroundNormal(false);
-         gravApplied = true;
+
     }
 
       this.jump.update(dt);
@@ -308,18 +224,6 @@ ThirdPersonMovement.prototype.update = function(dt) {
        this.jumpJet.attemptJumpY(this.vel, dt);
     }
 
-
-    // To factor out to EllipsoidCollider script
-
-
-
-
-  //  /*
-
-    //*/
-
-
-
     this.displacement.x =this.vel.x * dt;
     this.displacement.y = this.vel.y * dt;
     this.displacement.z = this.vel.z * dt;
@@ -330,8 +234,6 @@ ThirdPersonMovement.prototype.update = function(dt) {
     this.moveResult.collisions = this.collider.collisions;
     this.collider.collisions = null;
 
-
-     // -- To factor out to QPhysics script
     if (this.vel.x*this.vel.x + this.vel.y+this.vel.y + this.vel.z*this.vel.z != 0) {
         this.collisionResult.set_gotGroundNormal(false);
     }
@@ -340,8 +242,8 @@ ThirdPersonMovement.prototype.update = function(dt) {
     while (c != null) {
 
         if (c.normal.y >= this.collisionResult.max_ground_normal_threshold ) {  // && event.geomType !=CollisionEvent.GeomThing
-
-            if (!(gotGroundNormal=this.collisionResult.get_gotGroundNormal()) || this.collisionResult.maximum_ground_normal.y <= c.normal.y) {
+            
+            if (!(gotGroundNormal= this.collisionResult.get_gotGroundNormal()) || this.collisionResult.maximum_ground_normal.y <= c.normal.y) {
                 this.collisionResult.maximum_ground_normal.x = c.normal.x;
                 this.collisionResult.maximum_ground_normal.y = c.normal.y;
                 this.collisionResult.maximum_ground_normal.z = c.normal.z;
@@ -353,12 +255,6 @@ ThirdPersonMovement.prototype.update = function(dt) {
         }
         c = c.next;
     }
-    //console.log((this.moveResult.collisions!= null) + " : " + this.collisionResult.get_gotGroundNormal() + " :"+ this.collisionResult.maximum_ground_normal);
-
-
-
-
-
 
     var invT  = 1/dt;
     if (this.moveResult.collisions != null) {
@@ -375,7 +271,6 @@ ThirdPersonMovement.prototype.update = function(dt) {
     pos.z += this.vel.z * dt;
     this.entity.setPosition(pos.x, pos.y, pos.z);
 
-    // -- To factor out to SurfaceMovement script
 
      var entForward;
     if (this.entityCamera) {
@@ -396,31 +291,16 @@ ThirdPersonMovement.prototype.update = function(dt) {
     if (this.gravForce === 0) SurfaceMovement.updateWith(dt, null, this.vel, this.surfaceMovement.walk_state, this.surfaceMovement.strafe_state, this.forward, this.right, this.surfaceMovement.WALK_SPEED, this.surfaceMovement.WALK_SPEED, this.surfaceMovement.WALK_SPEED, this.surfaceMovement.friction, this.defaultGroundNormal );
     else SurfaceMovement.updateWith(dt, null, this.vel, this.surfaceMovement.walk_state, this.surfaceMovement.strafe_state, this.forward, this.right, this.surfaceMovement.WALK_SPEED, this.surfaceMovement.WALK_SPEED, this.surfaceMovement.WALK_SPEED, this.surfaceMovement.friction, this.collisionResult.get_gotGroundNormal() ? this.defaultGroundNormal : null );
 
-//}
-  // */
 
-    //this.entityCamera.lookAt( pos );
-    //
-    //
-    //
-    // Back to anims
-    //
-    // use direction from keypresses to apply a force to the character
-    if (gotMove) {  //&& this.collisionResult.get_gotGroundNormal()
+    if (gotMove && this.yawEntity) {  //&& this.collisionResult.get_gotGroundNormal()
 
-        //this.force.set(x, 0, z).normalize().scale(this.power);
+        //this.animationSetState('walking');
 
+        //if ( this.yawEntity) {
+        this.yawEntity.lookAt(pos.x + x, pos.y, pos.z+z);
+        //}
 
-       // this.entity.rigidbody.applyForce( this.force );
-
-
-        this.animationSetState('walking');
-
-        if ( this.yawEntity) {
-            this.yawEntity.lookAt(pos.x + x, pos.y, pos.z+z);
-        }
-
-    }else{
+    } /*else{
 
         if( y > 0) {
 
@@ -429,15 +309,12 @@ ThirdPersonMovement.prototype.update = function(dt) {
         }
         else  this.animationSetState('idle');
     }
-
-
-
+    */
 
 };
 
 
-
-
+/*
 ThirdPersonMovement.prototype.animationSetState = function(state){
 
     var states = ThirdPersonMovement.states;
@@ -451,3 +328,4 @@ ThirdPersonMovement.prototype.animationSetState = function(state){
     this.state = state;
 
 };
+*/

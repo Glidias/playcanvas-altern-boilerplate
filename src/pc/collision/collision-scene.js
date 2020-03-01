@@ -1,3 +1,4 @@
+// @ts-checkX
 import CollisionBoundNode from "../../hx/altern/collisions/CollisionBoundNode";
 import Transform3D from "../../hx/components/Transform3D";
 import BoundBox from "../../hx/components/BoundBox";
@@ -11,6 +12,8 @@ import Vec3 from "../../hx/util/geom/Vec3";
 import LibUtil from "../../hx/util/LibUtil";
 import IRaycastImpl from "../../hx/altern/ray/IRaycastImpl";
 import GeomCollisionSceneUtil from "../../hx/util/geom/GeomCollisionSceneUtil";
+
+import {collectAltGeometryFromMesh, getAltGeometryFromModel} from "../util/mesh-utils";
 
 var CollisionScene = pc.createScript('collisionScene');
 CollisionScene.attributes.add('bvhTrisPerNode', {type:'number',
@@ -301,8 +304,8 @@ CollisionScene.prototype.getCollidableEntryFromModel = function(model, filteredI
     this._entryBounds = new BoundBox();
     this._entryBounds.cached = true;
 
-    var collidable = this.exceedPolies(model) || alwaysUseBVHTree ? (this.getBVHTreeFromModel(model, filteredIndexList, this._entryBounds) || this.getAltGeometryFromModel(model, filteredIndexList, this._entryBounds) ) :
-        this.getAltGeometryFromModel(model, filteredIndexList, this._entryBounds);
+    var collidable = this.exceedPolies(model) || alwaysUseBVHTree ? (this.getBVHTreeFromModel(model, filteredIndexList, this._entryBounds) || this.getAltGeometryFromModel(model, filteredIndexList) ) :
+        this.getAltGeometryFromModel(model, filteredIndexList);
 
     if (collidable) {
         if (asset) {
@@ -318,35 +321,10 @@ CollisionScene.prototype.getCollidableEntryFromModel = function(model, filteredI
 };
 
 CollisionScene.prototype.getAltGeometryFromModel = function(model, filteredIndexList) {
-    var meshInstances = model.meshInstances;
-    var i;
-    var geom = new Geometry();
-    var myVertices = [];
-    var myIndices = [];
-    var m;
-    var t = new Transform3D();
-    var tt = new Transform3D();
-    var r;
-    var len = filteredIndexList ? filteredIndexList.length : meshInstances.length;
-    for (i=0; i< len; i++) {
-        m = filteredIndexList ? meshInstances[filteredIndexList[i]] : meshInstances[i];
-        CollisionScene.getAltTransform(m.node.getLocalTransform(), t);
-        r = m.node;
-        while( (r=r.parent) && !(r instanceof pc.Entity) ) {
-            t.append( CollisionScene.getAltTransform(r.getLocalTransform(), tt) );
-         }
-        this.collectAltGeometryFromMesh(m.mesh, t, this._entryBounds, myVertices.length, myIndices.length, myVertices, myIndices );
-    }
-    geom.setVertices(myVertices);
-    geom.setIndices(myIndices);
-    return geom;
+    return getAltGeometryFromModel(model, filteredIndexList, this._entryBounds);
 };
 
 CollisionScene.prototype.getBVHTreeFromModel = function(model, filteredIndexList) {
-    if (!window.bvhtree) {
-       console.warn("window.bvhtree package missing? We reccomend it for better mesh collision performance!");
-       return null;
-    }
     var meshInstances = model.meshInstances;
     var i;
     var m;
@@ -364,67 +342,16 @@ CollisionScene.prototype.getBVHTreeFromModel = function(model, filteredIndexList
          }
         this.addMeshToTris(triangles, m.mesh, t, this._entryBounds);
     }
-    return new BVHTree( new bvhtree.BVH(triangles, 12) );
+    return new BVHTree( new BVH(triangles, 12) );
 };
 CollisionScene.prototype.getAltGeometryFromMesh = function(mesh, transform, boundBox) {
     var geom = new Geometry();
     var myVertices = [];
     var myIndices = [];
-    this.collectAltGeometryFromMesh(mesh, transform, boundBox, 0, 0, myVertices, myIndices);
+    collectAltGeometryFromMesh(mesh, transform, boundBox, 0, 0, myVertices, myIndices);
     geom.setVertices(myVertices);
     geom.setIndices(myIndices);
     return geom;
-};
-
-CollisionScene.prototype.collectAltGeometryFromMesh = function(mesh, transform, boundBox, vi, ii, myVertices, myIndices) {
-    var baseI = vi/3;
-
-    var t= transform;
-
-    var ib = mesh.indexBuffer[pc.RENDERSTYLE_SOLID];
-    var vb = mesh.vertexBuffer;
-
-    var format = vb.getFormat();
-    var stride = format.size / 4;
-    var positions;
-    for (let j = 0; j < format.elements.length; j++) {
-        var element = format.elements[j];
-        if (element.name === pc.SEMANTIC_POSITION) {
-            positions = new Float32Array(vb.lock(), element.offset);
-        }
-    }
-
-    var indices = new Uint16Array(ib.lock());
-    var numTriangles = mesh.primitive[0].count / 3;
-
-    var i1, i2, i3;
-    var x; var y; var z;
-    var px; var py; var pz;
-
-    var base = mesh.primitive[0].base;
-
-   for (let j =0; j< positions.length; j+=stride) {
-       px = positions[j];
-       py = positions[j+1];
-       pz = positions[j+2];
-       if (t) {
-          x = px; y=py; z=pz;
-          px= t.a * x + t.b * y + t.c * z + t.d;
-          py = t.e * x + t.f * y + t.g * z + t.h;
-          pz= t.i * x + t.j * y + t.k * z + t.l;
-       }
-       if (boundBox) {
-           AABBUtils.expand(px,py,pz,boundBox);
-       }
-       myVertices[vi++] = px;  myVertices[vi++] = py;  myVertices[vi++] = pz;
-   }
-
-     for (let j = 0; j < numTriangles; j++) {
-        i1 = indices[base + j * 3];
-        i2 = indices[base + j * 3 + 1];
-        i3 = indices[base + j * 3 + 2];
-        myIndices[ii++] = baseI + i1;  myIndices[ii++] = baseI + i2;  myIndices[ii++] = baseI + i3;
-     }
 };
 
 CollisionScene.prototype.addMeshToTris = function(triangles, mesh, transform, boundBox) {
@@ -785,10 +712,10 @@ CollisionScene.prototype.initPlaycanvasTagged = function() {
               AABBUtils.match(t, r.boundBox);
               r.boundBox = t;
             }
-            AABBUtils.match(tt, lastNode.boundBox);
-            AABBUtils.transform(tt, lastNode.transform);
+            AABBUtils.match(t, lastNode.boundBox);
+            AABBUtils.transform(t, lastNode.transform);
 
-            GeomCollisionSceneUtil.updateBounds(r.boundBox, tt);
+            GeomCollisionSceneUtil.updateBounds(r.boundBox, t);
             lastNode = r;
         }
 
