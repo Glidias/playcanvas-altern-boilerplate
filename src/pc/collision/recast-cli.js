@@ -21,7 +21,7 @@ RecastCli.attributes.add('detailSampleMaxError', { type:'number', default:0, min
 
 
 // How certain Recast settings are resolved with Playcanvas entity
-RecastCli.prototype.getParams = function() {
+RecastCli.prototype.getParams = function(asObject) {
     var agentHeight = this.agentHeight;
     var agentRadius = this.agentRadius;
     if (agentHeight<=0) {
@@ -65,8 +65,8 @@ RecastCli.prototype.getParams = function() {
             maxClimb = -maxClimb * agentHeight;
         }
     }
-
-    var params =  [
+    
+    var params = !asObject ? [
        cellSize,
        cellHeight,
        agentHeight,
@@ -80,7 +80,21 @@ RecastCli.prototype.getParams = function() {
        this.vertsPerPoly,
        this.detailSampleDist,
        this.detailSampleMaxError
-    ];
+    ] : {
+        cellSize:cellSize,
+        cellHeight:cellHeight,
+        agentHeight:agentHeight,
+        agentRadius:agentRadius,
+        maxClimb:maxClimb,
+        maxSlope:this.maxSlope,
+        regionMinSize: this.regionMinSize,
+        regionMergeSize: this.regionMergeSize,
+        edgeMaxLen: this.edgeMaxLen,
+        edgeMaxError: this.edgeMaxError,
+        vertsPerPoly: this.vertsPerPoly,
+        detailSampleDist: this.detailSampleDist,
+        detailSampleMaxError: this.detailSampleMaxError
+    };
     //console.log(params);
     return params;
 };

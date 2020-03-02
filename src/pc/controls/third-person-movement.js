@@ -20,7 +20,7 @@ ThirdPersonMovement.attributes.add('friction', { type: 'number', default:0 });
 ThirdPersonMovement.attributes.add('walkSpeed', { type: 'number', default:230 });
 
 ThirdPersonMovement.attributes.add('ellipsoidThreshold', { type: 'number', default:0.00001, min:Number.MIN_VALUE });
-ThirdPersonMovement.attributes.add('groundNormalThreshold', { type: 'number', default:0, min:0, max:1 });
+ThirdPersonMovement.attributes.add('groundNormalThreshold', { type: 'number', default:0.573, min:0, max:1 });
 
 ThirdPersonMovement.attributes.add('jumpCooldown', { type: 'number', default:0.5 });
 ThirdPersonMovement.attributes.add('jumpPower', { type: 'number', default:9 });
@@ -113,7 +113,7 @@ ThirdPersonMovement.prototype.postInitialize = function() {
     if (this.collisionScene == null) {
         console.warn("third-person-movement :: Collision scene currently empty!");
         this.collisionScene = CollisionBoundNode.create(new Transform3D());
-         this.app.once('collision-scene-initialized', this.onCollisionSceneInited, this);
+        this.app.once('collision-scene-initialized', this.onCollisionSceneInited, this);
     }
 };
 
@@ -234,7 +234,7 @@ ThirdPersonMovement.prototype.update = function(dt) {
     this.moveResult.collisions = this.collider.collisions;
     this.collider.collisions = null;
 
-    if (this.vel.x*this.vel.x + this.vel.y+this.vel.y + this.vel.z*this.vel.z != 0) {
+    if (this.vel.x*this.vel.x + this.vel.y+this.vel.y + this.vel.z*this.vel.z !== 0) {
         this.collisionResult.set_gotGroundNormal(false);
     }
     var c = this.moveResult.collisions;

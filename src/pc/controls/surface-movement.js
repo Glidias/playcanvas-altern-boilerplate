@@ -29,7 +29,6 @@ SurfaceMovement.prototype.initialize = function() {
     
     this.transformedVec = new pc.Vec3();
     
-    
     this.moveResult = new MoveResult();
     //this.collisionResult = new CollisionResult(); // QPhysics
     //this.collisionResult.max_ground_normal_threshold = this.groundNormalThreshold;

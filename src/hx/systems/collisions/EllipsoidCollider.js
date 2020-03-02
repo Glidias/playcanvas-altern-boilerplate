@@ -42,16 +42,23 @@ class EllipsoidCollider {
 		this.collisionPlane = new (jeash_geom_Vector3D().default)();
 		this.resCollisionPoint = new (jeash_geom_Vector3D().default)();
 		this.resCollisionPlane = new (jeash_geom_Vector3D().default)();
-		this.geometries = [];
-		this.transforms = [];
+		this.geometries = EllipsoidCollider.GEOMETRIES;
+		this.transforms = EllipsoidCollider.TRANSFORMS;
 		this.numGeometries = 0;
-		this.vertices = [];
-		this.normals = [];
-		this.indices = [];
+		this.vertices = EllipsoidCollider.VERTICES;
+		this.normals = EllipsoidCollider.NORMALS;
+		this.indices = EllipsoidCollider.INDICES;
 		this.numI = 0;
 		this.displ = new (jeash_geom_Vector3D().default)();
 		this.dest = new (jeash_geom_Vector3D().default)();
 		this.src = new (jeash_geom_Vector3D().default)();
+	}
+	purge() {
+		this.transforms.length = 0;
+		this.geometries.length = 0;
+		this.normals.length = 0;
+		this.indices.length = 0;
+		this.vertices.length = 0;
 	}
 	calculateSphere(transform) {
 		this.sphere.x = transform.d;
@@ -704,6 +711,23 @@ class EllipsoidCollider {
 		}
 		return minTime;
 	}
+	static get TRANSFORMS() { return TRANSFORMS; }
+	static set TRANSFORMS(value) { TRANSFORMS = value; }
+	static get GEOMETRIES() { return GEOMETRIES; }
+	static set GEOMETRIES(value) { GEOMETRIES = value; }
+	static get VERTICES() { return VERTICES; }
+	static set VERTICES(value) { VERTICES = value; }
+	static get NORMALS() { return NORMALS; }
+	static set NORMALS(value) { NORMALS = value; }
+	static get INDICES() { return INDICES; }
+	static set INDICES(value) { INDICES = value; }
+	static purgeBuffers() {
+		EllipsoidCollider.TRANSFORMS.length = 0;
+		EllipsoidCollider.GEOMETRIES.length = 0;
+		EllipsoidCollider.NORMALS.length = 0;
+		EllipsoidCollider.INDICES.length = 0;
+		EllipsoidCollider.VERTICES.length = 0;
+	}
 	static get ZERO_VECTOR() { return ZERO_VECTOR; }
 	static set ZERO_VECTOR(value) { ZERO_VECTOR = value; }
 	static isNaN2(a) {
@@ -723,6 +747,11 @@ EllipsoidCollider.prototype.__class__ = EllipsoidCollider.prototype.constructor 
 
 // Statics
 
+var TRANSFORMS = [];
+var GEOMETRIES = [];
+var VERTICES = [];
+var NORMALS = [];
+var INDICES = [];
 var ZERO_VECTOR = new (jeash_geom_Vector3D().default)();
 
 // Export

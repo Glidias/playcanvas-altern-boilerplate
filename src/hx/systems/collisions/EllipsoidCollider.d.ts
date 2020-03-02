@@ -22,6 +22,8 @@ readonly numI: number;
 sphere: jeash_geom_Vector3D;
 timestamp: number;
 collisions: systems_collisions_CollisionEvent;
+purge(): void;
+static purgeBuffers():any;
 calculateSphere(transform: components_Transform3D): void;
 calculateCollidableGeometry(source: jeash_geom_Vector3D, collidable: systems_collisions_IECollidable): void;
 addGeometry(geometry: util_geom_Geometry, transform: components_Transform3D): void;
