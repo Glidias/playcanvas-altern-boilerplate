@@ -23,14 +23,6 @@ module.exports = {
         path: path.resolve(__dirname, 'build'),
         filename: '[name].build.js'
     },
-    optimization: {
-        minimize: true,
-        minimizer: [
-            new TerserPlugin({
-                sourceMap: true,
-            }),
-        ],
-    },
     plugins: [
         new PlayCanvasWebpackPlugin({
             skipUpload: process.env.UPLOAD === "no" || !configuration.bearer || configuration.bearer.length != 32,
